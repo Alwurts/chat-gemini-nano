@@ -36,7 +36,7 @@ export function Message({
     addMessage,
     updateMessageByIndex,
     removeMessage,
-    loadingUuid,
+    loadingUUID: loadingUuid,
   } = useChatManager();
 
   return (

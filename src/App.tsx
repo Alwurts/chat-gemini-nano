@@ -1,15 +1,14 @@
-import { Message } from "@/components/chat/Message";
 import { useChatManager } from "./components/store/useEditorManager";
 import { Button, buttonVariants } from "./components/ui/button";
-import { SaveDialog } from "./components/chat/SaveDialog";
-import { Separator } from "./components/ui/separator";
-import { SelectSavedChats } from "./components/chat/SelectSavedChats";
 import { useCheckAi } from "./hooks/useCheckAi";
+import { Conversation } from "./components/chat/Conversation";
+import { TemperatureSelector } from "./components/settings/TemperatureSelector";
+import { TopKSelector } from "./components/settings/TopKSelector";
 
 export function App() {
   const validAiDevice = useCheckAi();
 
-  const { conversation, newConversation, runConversation } = useChatManager();
+  const { runConversation } = useChatManager();
 
   if (!validAiDevice) {
     return (
@@ -40,31 +39,21 @@ export function App() {
           >
             Run
           </Button>
-          <Separator orientation="vertical" />
-
-          <SelectSavedChats />
-          <SaveDialog />
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => {
-              newConversation();
-            }}
-          >
-            New chat
-          </Button>
         </div>
       </header>
-      <main className="flex-1 space-y-3 overflow-auto p-4">
-        {conversation.messages.map((message, index) => {
-          return (
-            <Message
-              key={message.id}
-              conversationIndex={index}
-              message={message}
-            />
-          );
-        })}
+      <main className="grid flex-1 overflow-auto md:grid-cols-2 lg:grid-cols-3">
+        <div className="relative hidden flex-col items-start gap-8 p-4 md:flex border-r">
+          <form className="grid w-full items-start gap-6">
+            <fieldset className="grid gap-6 rounded-lg border p-4">
+              <legend className="-ml-1 px-1 text-sm font-medium">
+                Settings
+              </legend>
+              <TemperatureSelector />
+              <TopKSelector />
+            </fieldset>
+          </form>
+        </div>
+        <Conversation />
       </main>
     </div>
   );

@@ -4,8 +4,12 @@ import { nanoid } from "nanoid";
 
 type ChatManagerState = {
   conversation: TConversation;
+  loadingUUID: string | undefined;
+  conversationTemperature: number;
+  setConversationTemperature: (temperature: number) => void;
+  topK: number;
+  setTopK: (kTop: number) => void;
   newConversation: () => void;
-  loadingUuid: string | undefined;
   setConversation: (conversation: TConversation) => void;
   addMessage: (message: Omit<TMessage, "id">, afterIndex?: number) => TMessage;
   updateMessageByIndex: (
@@ -34,7 +38,12 @@ export const useChatManager = create<ChatManagerState>((set, get) => ({
       },
     ],
   },
-  loadingUuid: undefined,
+  loadingUUID: undefined,
+  conversationTemperature: 0.7,
+  setConversationTemperature: (temperature) =>
+    set({ conversationTemperature: temperature }),
+  topK: 20,
+  setTopK: (topK) => set({ topK }),
   newConversation: () =>
     set({
       conversation: {
@@ -63,15 +72,16 @@ export const useChatManager = create<ChatManagerState>((set, get) => ({
     const canCreate = await window.ai.canCreateTextSession();
 
     if (canCreate !== "no") {
+      const { conversationTemperature, topK } = get();
       // @ts-expect-error - AI is not defined
       const session = await window.ai.createTextSession({
-        topK: 20,
-        temperature: 0.7,
+        topK,
+        temperature: conversationTemperature,
       });
 
       const newMessage = get().addMessage({ from: "assistant", content: "" });
 
-      set({ loadingUuid: newMessage.id });
+      set({ loadingUUID: newMessage.id });
 
       const stream = session.promptStreaming(prompt);
       for await (const chunk of stream) {
@@ -81,7 +91,7 @@ export const useChatManager = create<ChatManagerState>((set, get) => ({
       }
 
       session.destroy();
-      set({ loadingUuid: undefined });
+      set({ loadingUUID: undefined });
     }
   },
   addMessage: (message, afterIndex) => {
