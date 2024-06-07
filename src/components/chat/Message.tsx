@@ -7,7 +7,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { TFrom, TMessage } from "@/types/message";
-import { useEditorManager } from "../store/useEditorManager";
+import { useChatManager } from "../store/useEditorManager";
 import {
   Select,
   SelectContent,
@@ -29,13 +29,13 @@ export function Message({
   conversationIndex,
 }: MessageProps) {
   const {
-    messages,
+    conversation: { messages },
     moveMessageUp,
     moveMessageDown,
     addMessage,
     updateMessageByIndex,
     removeMessage,
-  } = useEditorManager();
+  } = useChatManager();
 
   return (
     <div

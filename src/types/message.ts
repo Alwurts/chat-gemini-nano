@@ -5,3 +5,9 @@ export type TMessage = {
   from: TFrom;
   content: string;
 };
+
+export type TConversation = {
+  id: string;
+  title: string;
+  messages: TMessage[];
+}
