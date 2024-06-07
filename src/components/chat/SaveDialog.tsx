@@ -69,7 +69,7 @@ export function SaveDialog() {
       }}
     >
       <DialogTrigger asChild>
-        <Button size="sm">Save</Button>
+        <Button size="sm">Save as new</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

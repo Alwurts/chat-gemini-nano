@@ -4,6 +4,8 @@ import { nanoid } from "nanoid";
 
 type ChatManagerState = {
   conversation: TConversation;
+  newConversation: () => void;
+  loadingUuid: string | undefined;
   setConversation: (conversation: TConversation) => void;
   addMessage: (message: Omit<TMessage, "id">, afterIndex?: number) => TMessage;
   updateMessageByIndex: (
@@ -28,10 +30,25 @@ export const useChatManager = create<ChatManagerState>((set, get) => ({
       {
         id: nanoid(),
         from: "user",
-        content: "Make a poem about clouds",
+        content: "New conversation",
       },
     ],
   },
+  loadingUuid: undefined,
+  newConversation: () =>
+    set({
+      conversation: {
+        id: nanoid(),
+        title: "",
+        messages: [
+          {
+            id: nanoid(),
+            from: "user",
+            content: "Make a poem about clouds",
+          },
+        ],
+      },
+    }),
   setConversation: (conversation) => set({ conversation }),
   runConversation: async () => {
     const prompt =
@@ -54,6 +71,8 @@ export const useChatManager = create<ChatManagerState>((set, get) => ({
 
       const newMessage = get().addMessage({ from: "assistant", content: "" });
 
+      set({ loadingUuid: newMessage.id });
+
       const stream = session.promptStreaming(prompt);
       for await (const chunk of stream) {
         get().updateMessageById(newMessage.id, {
@@ -62,6 +81,7 @@ export const useChatManager = create<ChatManagerState>((set, get) => ({
       }
 
       session.destroy();
+      set({ loadingUuid: undefined });
     }
   },
   addMessage: (message, afterIndex) => {

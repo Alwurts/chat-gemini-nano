@@ -13,7 +13,7 @@ interface DynamicTextareaProps {
 export const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
   value,
   onChange,
-  readOnly = false,
+  readOnly,
   placeholder,
   className,
 }) => {

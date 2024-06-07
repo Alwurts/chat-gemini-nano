@@ -1,12 +1,31 @@
 import { Message } from "@/components/chat/Message";
 import { useChatManager } from "./components/store/useEditorManager";
-import { Button } from "./components/ui/button";
+import { Button, buttonVariants } from "./components/ui/button";
 import { SaveDialog } from "./components/chat/SaveDialog";
 import { Separator } from "./components/ui/separator";
 import { SelectSavedChats } from "./components/chat/SelectSavedChats";
+import { useCheckAi } from "./hooks/useCheckAi";
 
 export function App() {
-  const { conversation, runConversation } = useChatManager();
+  const validAiDevice = useCheckAi();
+
+  const { conversation, newConversation, runConversation } = useChatManager();
+
+  if (!validAiDevice) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen space-y-6">
+        <h2 className="text-2xl">
+          Your browser does not seem to support using Gemini Nano API
+        </h2>
+        <a
+          href="https://github.com/Alwurts/chat-gemini-nano"
+          className={buttonVariants()}
+        >
+          Go to project repository
+        </a>
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen w-full flex flex-col">
@@ -29,7 +48,7 @@ export function App() {
             size="sm"
             variant="outline"
             onClick={() => {
-              runConversation();
+              newConversation();
             }}
           >
             New chat
