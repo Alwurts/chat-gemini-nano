@@ -22,6 +22,7 @@ import {
 import { addConversation } from "@/database/chat";
 import { useChatManager } from "../store/useEditorManager";
 import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const saveSchema = z.object({
   title: z.string().min(2).max(200),
@@ -32,7 +33,16 @@ export function SaveDialog() {
 
   const [open, setOpen] = useState(false);
 
-  const saveForm = useForm<z.infer<typeof saveSchema>>({
+  const queryClient = useQueryClient();
+
+  const saveChat = useMutation({
+    mutationFn: addConversation,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["saved-conversations"] });
+    },
+  });
+
+  const form = useForm<z.infer<typeof saveSchema>>({
     resolver: zodResolver(saveSchema),
     defaultValues: {
       title: "",
@@ -41,7 +51,7 @@ export function SaveDialog() {
 
   async function onSubmit(values: z.infer<typeof saveSchema>) {
     console.log(values);
-    await addConversation({
+    await saveChat.mutateAsync({
       ...conversation,
       title: values.title,
     });
@@ -54,7 +64,7 @@ export function SaveDialog() {
       onOpenChange={(open) => {
         setOpen(open);
         if (!open) {
-          saveForm.reset();
+          form.reset();
         }
       }}
     >
@@ -65,13 +75,10 @@ export function SaveDialog() {
         <DialogHeader>
           <DialogTitle>Save conversation</DialogTitle>
         </DialogHeader>
-        <Form {...saveForm}>
-          <form
-            onSubmit={saveForm.handleSubmit(onSubmit)}
-            className="space-y-4"
-          >
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
-              control={saveForm.control}
+              control={form.control}
               name="title"
               render={({ field }) => (
                 <FormItem>

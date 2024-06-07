@@ -4,6 +4,7 @@ import { nanoid } from "nanoid";
 
 type ChatManagerState = {
   conversation: TConversation;
+  setConversation: (conversation: TConversation) => void;
   addMessage: (message: Omit<TMessage, "id">, afterIndex?: number) => TMessage;
   updateMessageByIndex: (
     index: number,
@@ -31,6 +32,7 @@ export const useChatManager = create<ChatManagerState>((set, get) => ({
       },
     ],
   },
+  setConversation: (conversation) => set({ conversation }),
   runConversation: async () => {
     const prompt =
       get().conversation.messages.reduce((acc, message) => {
@@ -46,8 +48,8 @@ export const useChatManager = create<ChatManagerState>((set, get) => ({
     if (canCreate !== "no") {
       // @ts-expect-error - AI is not defined
       const session = await window.ai.createTextSession({
-        topK: 1,
-        temperature: 0.1,
+        topK: 20,
+        temperature: 0.7,
       });
 
       const newMessage = get().addMessage({ from: "assistant", content: "" });

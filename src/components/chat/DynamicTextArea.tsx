@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
@@ -17,28 +17,32 @@ export const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
   placeholder,
   className,
 }) => {
-  const [rows, setRows] = useState(1);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    const lineCount = value.split("\n").length;
-    setRows(Math.max(1, lineCount));
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto"; // Reset height
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`; // Set height based on scroll height
+    }
   }, [value]);
 
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const { value } = e.target;
-    const lineCount = value.split("\n").length;
-    setRows(Math.max(1, lineCount));
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto"; // Reset height
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`; // Set height based on scroll height
+    }
     onChange(e);
   };
 
   return (
     <Textarea
-      rows={rows}
+      ref={textareaRef}
       value={value}
       onChange={handleTextareaChange}
       readOnly={readOnly}
       placeholder={placeholder}
       className={cn("resize-none", className)}
+      style={{ overflow: "hidden" }} // Ensure no scrollbars
     />
   );
 };
